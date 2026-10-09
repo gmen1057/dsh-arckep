@@ -33,7 +33,8 @@ start screen).
 ## Requirements
 
 - DSH **0.2.0-rc.2** or newer with the web UI (`dsh web`). DSH is a developer preview and its plugin
-  APIs are still changing, see [Compatibility](#compatibility).
+  APIs are still changing, see [Compatibility](#compatibility). DSH itself needs Node.js 22.19+
+  (or 24+); the plugin has no other requirement.
 - A DSH profile that includes the web app (the shipped `web` profile does).
 - An arckep.ru API key with the **`balance:read`** scope.
 
@@ -148,8 +149,8 @@ plugin depends on the web client's slots (`conversation.session.header.utilities
 
 | DSH version | Status |
 |---|---|
-| 0.2.0-rc.2 (`latest`) | tested: plugin loads, badge, panel, settings, key storage |
-| 0.2.1-alpha.2 (`alpha`) | see CHANGELOG |
+| 0.2.0-rc.2 (`latest`) | tested: installs (from a local path, a tarball and a git URL), loads, badge, panel, settings, key storage, live disable/enable |
+| 0.2.1-alpha.2 (`alpha`) | tested: installs from a tarball, loads, badge, panel, settings, key storage |
 
 Only the web UI (`dsh web`) was exercised. The TUI has no web client and is not supported; the
 desktop app was not tested.

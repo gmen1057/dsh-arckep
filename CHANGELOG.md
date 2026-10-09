@@ -25,3 +25,12 @@ First public version.
 - Works without the spending endpoint: when `/api/v1/usage` answers 404 the balance is
   still shown and the spending block is hidden.
 - Key can also come from the `ARCKEP_API_KEY` environment variable.
+- Interface language can be switched between "same as DSH", Russian and English in
+  Settings → Arckep (DSH itself ships English and Chinese only).
+
+### Verified
+
+- DSH 0.2.0-rc.2 and 0.2.1-alpha.2 with `dsh web`: install from a tarball, load, badge,
+  panel, settings page, key storage. On 0.2.0-rc.2 also: install from a local path and from a
+  git URL, switching the plugin off and on again without a restart.
+- Not verified: the desktop app, Node.js 22 locally (CI runs 22 and 24), use behind a proxy.

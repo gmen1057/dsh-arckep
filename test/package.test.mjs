@@ -108,3 +108,25 @@ test('the client never logs: no console output of any kind except one error for 
   assert.deepEqual(calls, ['error'])
   for (const file of libFiles.filter(name => name !== 'client.js')) assert.doesNotMatch(read(`lib/${file}`), /console\./, file)
 })
+
+test('documentation: unofficial notice, install command, no marketing claims, no internal details', () => {
+  const en = read('README.md')
+  const ru = read('README.ru.md')
+  assert.match(en, /\*\*Unofficial\.\*\*/)
+  assert.match(en, /not made by, endorsed by or affiliated with\s+(?:>\s*)?DeepSeek/)
+  assert.match(ru, /\*\*Неофициальный плагин\.\*\*/)
+  for (const doc of [en, ru]) {
+    assert.ok(doc.includes('dsh plugin --profile web add github:gmen1057/dsh-arckep'))
+    assert.ok(doc.includes('dsh plugin --profile web add dsh-arckep'))
+    assert.ok(doc.includes('balance:read') && doc.includes('MIT') && doc.includes('SECURITY.md'))
+    assert.doesNotMatch(doc, /\b(best|number one|#1|№\s?1|лучш\w+|№1)\b/i)
+    assert.doesNotMatch(doc, /\/opt\/|\/root\/|\/var\/tmp\/|\/home\/[a-z]/i)
+  }
+  assert.match(read('SECURITY.md'), /Security Advisories/)
+  assert.match(read('CHANGELOG.md'), /## \[0\.1\.0\]/)
+  assert.ok(existsSync(new URL('../.github/workflows/ci.yml', import.meta.url)))
+  const ci = read('.github/workflows/ci.yml')
+  assert.match(ci, /ubuntu-24\.04/)
+  assert.match(ci, /node: \[22, 24\]/)
+  assert.doesNotMatch(ci, /secrets\./)
+})

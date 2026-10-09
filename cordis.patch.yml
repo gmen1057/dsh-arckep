@@ -1,0 +1,16 @@
+# dsh-arckep bundle patch: one Host row. The browser half rides on the row
+# whose name is the bare package name, so keep `name: dsh-arckep`.
+#
+# Optional defaults (the card in Settings overrides them per browser). To change
+# them, add this to your profile's own cordis.patch.yml:
+#   - id: arckep
+#     config:
+#       refreshSeconds: 300   # polling interval, minimum 60
+#       warnBelowRub: 100     # warn when the balance drops below this many rubles
+#       keyOnly: false        # count spending for the API key only
+#
+# The API key is NOT configured here. Enter it in Settings -> Arckep, or export
+# ARCKEP_API_KEY before starting DSH.
+- insert:
+    - id: arckep
+      name: dsh-arckep

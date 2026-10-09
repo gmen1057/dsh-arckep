@@ -19,10 +19,11 @@ with the balance in the session header, a panel with the details, and a settings
   the top 5 models by cost, "enough for about N days", "updated N min ago" and a refresh button.
 - **Settings → Arckep**: the API key field (it is cleared after saving and only shows that a key
   is set), *Save* / *Delete key*, "count spending for this key only", the polling interval
-  (default 300 s, minimum 60 s) and the warning threshold.
+  (default 300 s, minimum 60 s), the warning threshold and the interface language.
 - Russian and English interface, following the DSH language (Russian when it cannot be
-  determined, English for other DSH languages). Colours come from the DSH theme, so light and
-  dark themes work.
+  determined, English for other DSH languages). DSH itself ships English and Chinese, so a
+  Russian reader can switch the plugin to Russian in Settings → Arckep. Colours come from the DSH
+  theme, so light and dark themes work.
 - If arckep.ru is unreachable, the last good numbers stay on screen and are marked
   "data is out of date".
 
@@ -77,8 +78,9 @@ variable wins over a stored key, and the settings page then shows the key as rea
 | Count spending for this key only | off | this browser |
 | Polling interval | 300 s (minimum 60 s) | this browser |
 | Warn when the balance is below | 100 ₽ | this browser |
+| Interface language | same as DSH | this browser |
 
-The last three can also get deployment-wide defaults by overriding the `arckep` row in your
+The three display settings above the language can also get deployment-wide defaults by overriding the `arckep` row in your
 profile's `cordis.patch.yml` (`$DSH_HOME/profiles/<profile>/cordis.patch.yml`):
 
 ```yaml
@@ -110,7 +112,7 @@ Anything the user changes in Settings → Arckep overrides these defaults in tha
   `GET /api/v1/usage?days=30&key_only=...`. The host and the https scheme are checked in code; a
   redirect (any 3xx answer) is treated as an error and never followed.
 - **No telemetry, no analytics, no third-party requests.** The plugin writes no files of its own;
-  the only thing persisted by DSH is the key, in its credential store. The three display settings
+  the only thing persisted by DSH is the key, in its credential store. The display settings
   live in your browser's `localStorage`.
 - The key is sent in the `Authorization: Bearer` header to arckep.ru and nowhere else. It is
   never put in `cordis.patch.yml`, in the URL, in logs, in error messages, or in anything sent to

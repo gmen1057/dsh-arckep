@@ -120,6 +120,7 @@ export function serverState(overrides = {}) {
 export function snapshotOf(partial = {}) {
   return {
     lang: 'ru',
+    autoLang: 'ru',
     server: serverState(),
     receivedAt: 1_760_000_000_000,
     loading: false,

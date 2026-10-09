@@ -361,6 +361,33 @@ test('controller: preferences persist, are validated, and a blocked storage does
   corrupt.controller.dispose()
 })
 
+test('controller: the interface language follows DSH unless the user picks one in Settings', async () => {
+  const { t } = await loadClient()
+  const storage = fakeStorage()
+  const { controller, timers } = makeController(t, { storage, lang: 'en' })
+  assert.equal(controller.getSnapshot().lang, 'en')
+  controller.setLanguage('ru')
+  assert.equal(controller.getSnapshot().lang, 'ru', 'DSH language change is followed')
+  controller.setPrefs({ lang: 'en' })
+  assert.equal(controller.getSnapshot().lang, 'en')
+  assert.equal(JSON.parse(storage.map.get('dsh-arckep:prefs:v1')).lang, 'en')
+  controller.setLanguage('zh')
+  assert.equal(controller.getSnapshot().lang, 'en', 'the user\'s choice wins over DSH')
+  controller.setPrefs({ lang: 'de' })
+  assert.equal(controller.getSnapshot().lang, 'en', 'an unsupported language is ignored')
+  controller.setPrefs({ lang: null })
+  assert.equal(controller.getSnapshot().lang, 'zh', 'null returns to "same as DSH"')
+  assert.equal(storage.map.has('dsh-arckep:prefs:v1') && 'lang' in JSON.parse(storage.map.get('dsh-arckep:prefs:v1')), false)
+  controller.setPrefs({ lang: 'ru' })
+  controller.dispose()
+  const again = makeController(t, { storage, lang: 'en' })
+  assert.equal(again.controller.getSnapshot().lang, 'ru', 'persisted across reloads')
+  again.controller.resetPrefs()
+  assert.equal(again.controller.getSnapshot().lang, 'en')
+  again.controller.dispose()
+  void timers
+})
+
 test('controller: a deployment default for keyOnly arriving with the first answer triggers one refetch', async () => {
   const { t } = await loadClient()
   const { controller, fetchImpl, timers } = makeController(t)
@@ -572,6 +599,18 @@ test('PanelBody: no key shows the hint, no ruble amount and no fake zero', async
   assert.ok(!html.includes('₽') && !html.includes('0,00'))
 })
 
+test('PanelBody: the 403 text names the scope once, with a default when the server gave none', async () => {
+  const loaded = await loadClient()
+  const t = { ...loaded.t, React: loaded.React }
+  const scopeCount = html => (html.match(/balance:read/g) ?? []).length
+  const given = panel(t, { server: serverState({ status: 'error', balance: null, usage: null, error: { code: 'forbidden', status: 403, required: ['balance:read'] } }) })
+  assert.equal(scopeCount(given), 1)
+  const missing = panel(t, { server: serverState({ status: 'error', balance: null, usage: null, error: { code: 'forbidden', status: 403 } }) })
+  assert.equal(scopeCount(missing), 1)
+  const other = panel(t, { server: serverState({ status: 'error', balance: null, usage: null, error: { code: 'forbidden', status: 403, required: ['x:y'] } }) })
+  assert.ok(other.includes('(x:y)') && !other.includes('balance:read'))
+})
+
 test('PanelBody: errors are understandable; stale data stays visible and is flagged', async () => {
   const loaded = await loadClient()
   const t = { ...loaded.t, React: loaded.React }
@@ -650,6 +689,8 @@ test('Settings page: key status, input that is a password field, buttons, switch
   assert.ok(html.includes('Считать расход только по этому ключу'))
   assert.ok(html.includes('Интервал опроса, секунд (не меньше 60)'))
   assert.ok(html.includes('Предупреждать, когда баланс ниже, ₽'))
+  assert.ok(html.includes('Язык интерфейса') && html.includes('>Как в DSH<') && html.includes('>Русский<') && html.includes('>English<'))
+  assert.match(html, /<select[^>]*>[\s\S]*<option value="auto" selected=""|<select[^>]*value="auto"/)
   assert.ok(html.includes('value="300"') && html.includes('value="100"'))
   assert.ok(html.includes('никуда, кроме arckep.ru, не отправляется'))
   assert.ok(!html.includes(KEY_TYPED))

@@ -161,7 +161,15 @@ test('a request that never answers times out after the configured time', async (
   })
   const api = createApiClient({ fetchImpl: hanging, timeoutMs: 40 })
   const started = Date.now()
-  await rejects(api.getBalance(KEY), 'timeout')
+  // AbortSignal.timeout() timers are unref'd. A running DSH server has other
+  // handles, but this bare test process does not: on Node 22 the event loop
+  // would drain before the timer fires. Keep it alive for the wait.
+  const keepAlive = setTimeout(() => {}, 5000)
+  try {
+    await rejects(api.getBalance(KEY), 'timeout')
+  } finally {
+    clearTimeout(keepAlive)
+  }
   assert.ok(Date.now() - started < 2000)
 })
 

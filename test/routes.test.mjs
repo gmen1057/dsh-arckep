@@ -131,7 +131,7 @@ test('POST routes cap the body at 4 KiB and reject bad JSON', async () => {
 })
 
 test('an unexpected failure becomes a bare 500 without details', async () => {
-  const service = { getState: async () => { throw new Error(`secret path /root/x and ${KEY}`) } }
+  const service = { getState: async () => { throw new Error(`secret path /home/someone/x and ${KEY}`) } }
   const [state] = createRoutes(service)
   const response = await state.fetch(new Request('http://127.0.0.1:39102/api/arckep.state'))
   assert.equal(response.status, 500)

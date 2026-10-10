@@ -9,7 +9,7 @@ const libFiles = readdirSync(new URL('../lib/', import.meta.url)).filter(name =>
 
 test('package metadata', () => {
   assert.equal(pkg.name, 'dsh-arckep')
-  assert.equal(pkg.version, '0.1.0')
+  assert.equal(pkg.version, '0.1.1')
   assert.equal(pkg.license, 'MIT')
   assert.equal(pkg.type, 'module')
   assert.equal(pkg.main, 'lib/index.js')
@@ -123,7 +123,9 @@ test('documentation: unofficial notice, install command, no marketing claims, no
     assert.doesNotMatch(doc, /\/opt\/|\/root\/|\/var\/tmp\/|\/home\/[a-z]/i)
   }
   assert.match(read('SECURITY.md'), /Security Advisories/)
+  assert.match(read('CHANGELOG.md'), /## \[0\.1\.1\]/)
   assert.match(read('CHANGELOG.md'), /## \[0\.1\.0\]/)
+  assert.equal(JSON.parse(read('package-lock.json')).version, pkg.version)
   assert.ok(existsSync(new URL('../.github/workflows/ci.yml', import.meta.url)))
   const ci = read('.github/workflows/ci.yml')
   assert.match(ci, /ubuntu-24\.04/)

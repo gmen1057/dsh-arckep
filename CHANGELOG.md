@@ -4,6 +4,27 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.1] - 2026-10-10
+
+### Added
+
+- A second balance badge at the foot of the DSH sidebar (slot `sidebar.footer.action`), above
+  Settings, so the balance is visible on the empty start screen without opening a session.
+  It shows the ruble icon and the amount, follows the same warning rules (threshold and forecast
+  under 3 days) and opens the same panel. In the collapsed 56 px rail it shows the icon only,
+  with the amount in the tooltip and the accessible name.
+- Setting "Show the balance in the sidebar" in Settings → Arckep (on by default, stored in the
+  browser). The header badge is not affected by it.
+
+### Changed
+
+- Both badges share one state: only one panel is open at a time, a refresh in one place shows in
+  the other at once, and the second badge makes no additional requests.
+- The panel opens above the sidebar badge (left-aligned, kept inside the window, scrolling
+  when there is little room) and below the header badge as before.
+- Tests: interaction tests in a real DOM (jsdom, a development dependency only; nothing new is
+  shipped or installed for users).
+
 ## [0.1.0] - 2026-10-09
 
 First public version.

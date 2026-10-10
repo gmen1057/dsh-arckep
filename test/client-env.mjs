@@ -127,6 +127,7 @@ export function snapshotOf(partial = {}) {
     hostError: false,
     busy: null,
     notice: null,
+    panel: null,
     overrides: {},
     ...partial,
   }

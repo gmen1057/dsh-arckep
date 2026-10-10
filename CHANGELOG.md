@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- Documentation: removed the claim that a new release needs a day before it installs from npm.
+  Checked on a clean profile: pnpm adds a package installed directly to its release-age
+  exclusion list itself, so `dsh-arckep@0.1.2` installed at once. The Troubleshooting row now
+  only describes the case where other, too new packages are in the profile.
+
 ## [0.1.2] - 2026-10-10
 
 ### Added

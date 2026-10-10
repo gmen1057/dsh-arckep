@@ -60,6 +60,15 @@ dsh plugin --profile web add dsh-arckep
 Check that the layer is active with `dsh --profile web --dump-config` (look for the
 `# == dsh-arckep` block). Remove the plugin with `dsh plugin --profile web remove dsh-arckep`.
 
+### Desktop app
+
+DSH Desktop owns its own profile, `desktop`. As the DSH docs describe: launch the app once,
+**quit it completely**, run `dsh plugin --profile desktop add github:gmen1057/dsh-arckep` (with the
+`dsh` command that ships with the app), then reopen the app. For the `desktop` profile
+`dsh --profile desktop --dump-config` is refused ("managed exclusively by the Electron
+application"), so the only check is the badge in the header of an open session. The author has not
+tested the plugin in the desktop app.
+
 ## Set the key
 
 1. On arckep.ru open **Settings → API** and create a key. It needs access to the **balance**
@@ -140,6 +149,8 @@ Report vulnerabilities privately, see [SECURITY.md](SECURITY.md).
 | "Spending details are not available on arckep.ru yet" | the server has no `/usage` endpoint (yet); the balance still works |
 | no badge at all | open a session (the badge is in the session header); make sure the plugin is listed by `dsh --profile web --dump-config` |
 | "The key comes from an environment variable" | unset `ARCKEP_API_KEY` to manage the key in Settings |
+| install fails and DSH prints "git-hosted plugins build on install via their prepare script…" | that hint is printed for **any** failed install from a `github:` address. dsh-arckep has no install or prepare script, so `allowBuilds` is not needed; read the real pnpm error printed above the hint |
+| install fails with a `minimumReleaseAge` error that names other plugins | pnpm 11 refuses packages published less than 24 hours ago by default and checks every package in the profile's lockfile, not only the new one. Retry later; the plugin is not the cause |
 
 ## Compatibility
 
@@ -153,7 +164,7 @@ plugin depends on the web client's slots (`conversation.session.header.utilities
 | 0.2.1-alpha.2 (`alpha`) | tested: installs from a tarball, loads, badge, panel, settings, key storage |
 
 Only the web UI (`dsh web`) was exercised. The TUI has no web client and is not supported; the
-desktop app was not tested.
+author has not tested the desktop app (install steps for it are above).
 
 ## Development
 

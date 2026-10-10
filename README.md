@@ -170,8 +170,8 @@ of the Host.
 
 | DSH version | Status |
 |---|---|
-| 0.2.0-rc.2 (`latest`) | tested: installs (from a local path, a tarball and a git URL), loads, badge, panel, settings, key storage, live disable/enable |
-| 0.2.1-alpha.2 (`alpha`) | tested: installs from a tarball, loads, badge, panel, settings, key storage |
+| 0.2.0-rc.2 (`latest`) | tested: installs (from a local path, a tarball and a git URL), loads, header and sidebar badges, panel, settings, key storage, live disable/enable |
+| 0.2.1-alpha.2 (`alpha`) | tested: installs from a tarball, loads, header and sidebar badges, panel, settings, key storage |
 
 Only the web UI (`dsh web`) was exercised. The TUI has no web client and is not supported; the
 author has not tested the desktop app (install steps for it are above).

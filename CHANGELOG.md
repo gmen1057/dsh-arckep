@@ -25,6 +25,14 @@ All notable changes to this project are documented here. The format follows
 - Tests: interaction tests in a real DOM (jsdom, a development dependency only; nothing new is
   shipped or installed for users).
 
+### Verified
+
+- DSH 0.2.0-rc.2 and 0.2.1-alpha.2 with `dsh web`: the sidebar badge on the empty start screen
+  and next to the header badge in a session; light and dark themes; Russian and English; a
+  420 px window and the collapsed rail; no key, normal, warning, stale, 401 and 403 states;
+  switching the sidebar badge off removes it and leaves no gap above Settings.
+- Not verified: the desktop app.
+
 ## [0.1.0] - 2026-10-09
 
 First public version.

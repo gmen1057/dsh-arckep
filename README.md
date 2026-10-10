@@ -4,7 +4,8 @@ English | [Русский](README.ru.md)
 
 Shows the **balance and spending of your [arckep.ru](https://arckep.ru) account** right inside the
 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH) web UI: a small badge
-with the balance in the session header, a panel with the details, and a settings page for the API key.
+with the balance in the session header and at the foot of the sidebar, a panel with the details,
+and a settings page for the API key.
 
 > **Unofficial.** This is a community plugin. It is not made by, endorsed by or affiliated with
 > DeepSeek. arckep.ru is the third-party service the plugin connects to; you need your own
@@ -15,11 +16,15 @@ with the balance in the session header, a panel with the details, and a settings
 - **Badge** in the header of an open session: the balance as `1 234,50 ₽`. It turns to a
   warning colour when the balance is below your threshold (default 100 ₽) or when the forecast
   says the money lasts less than 3 days. Click it to open the panel.
+- **Sidebar badge**: the same balance (icon and amount) at the foot of the sidebar, above
+  Settings, so it is visible on the empty start screen too, with the same warning rules. Click it
+  to open the same panel. You can switch it off in Settings → Arckep.
 - **Panel**: balance (with a note for a corporate wallet), spending for today / 7 days / 30 days,
   the top 5 models by cost, "enough for about N days", "updated N min ago" and a refresh button.
 - **Settings → Arckep**: the API key field (it is cleared after saving and only shows that a key
   is set), *Save* / *Delete key*, "count spending for this key only", the polling interval
-  (default 300 s, minimum 60 s), the warning threshold and the interface language.
+  (default 300 s, minimum 60 s), the warning threshold, "show the balance in the sidebar" and the
+  interface language.
 - Russian and English interface, following the DSH language (Russian when it cannot be
   determined, English for other DSH languages). DSH itself ships English and Chinese, so a
   Russian reader can switch the plugin to Russian in Settings → Arckep. Colours come from the DSH
@@ -27,8 +32,11 @@ with the balance in the session header, a panel with the details, and a settings
 - If arckep.ru is unreachable, the last good numbers stay on screen and are marked
   "data is out of date".
 
-The badge lives in the session header, so it appears once a session is open (not on the empty
-start screen).
+The header badge exists only while a session is open. The sidebar badge does not depend on a
+session. When the sidebar is collapsed to its narrow rail it shows only the ruble icon (hover or
+focus it for the amount), so nothing wraps or is cut off. Both badges share one state and one
+panel: only one panel is open at a time, a refresh in one place shows in the other at once, and
+the second badge makes no extra requests.
 
 ## Requirements
 
@@ -66,7 +74,7 @@ DSH Desktop owns its own profile, `desktop`. As the DSH docs describe: launch th
 **quit it completely**, run `dsh plugin --profile desktop add github:gmen1057/dsh-arckep` (with the
 `dsh` command that ships with the app), then reopen the app. For the `desktop` profile
 `dsh --profile desktop --dump-config` is refused ("managed exclusively by the Electron
-application"), so the only check is the badge in the header of an open session. The author has not
+application"), so the only check is the badge at the foot of the sidebar (or in the header of an open session). The author has not
 tested the plugin in the desktop app.
 
 ## Set the key
@@ -85,6 +93,7 @@ variable wins over a stored key, and the settings page then shows the key as rea
 | Setting | Default | Where it is stored |
 |---|---|---|
 | API key | none | DSH credential store (`ARCKEP_API_KEY`), see Privacy |
+| Show the balance in the sidebar | on | this browser |
 | Count spending for this key only | off | this browser |
 | Polling interval | 300 s (minimum 60 s) | this browser |
 | Warn when the balance is below | 100 ₽ | this browser |
@@ -147,7 +156,7 @@ Report vulnerabilities privately, see [SECURITY.md](SECURITY.md).
 | "The key lacks the required access (balance:read)" | create a key with the *balance* scope |
 | "Cannot reach arckep.ru" / "did not answer within 10 seconds" | network problem; the last numbers stay, marked out of date |
 | "Spending details are not available on arckep.ru yet" | the server has no `/usage` endpoint (yet); the balance still works |
-| no badge at all | open a session (the badge is in the session header); make sure the plugin is listed by `dsh --profile web --dump-config` |
+| no badge at all | look at the foot of the sidebar, above Settings (the header badge needs an open session). If there is an Arckep page in Settings, check that "Show the balance in the sidebar" is on; if there is no such page, the plugin is not loaded: look for the `# == dsh-arckep` block in `dsh --profile web --dump-config` |
 | "The key comes from an environment variable" | unset `ARCKEP_API_KEY` to manage the key in Settings |
 | install fails and DSH prints "git-hosted plugins build on install via their prepare script…" | that hint is printed for **any** failed install from a `github:` address. dsh-arckep has no install or prepare script, so `allowBuilds` is not needed; read the real pnpm error printed above the hint |
 | install fails with a `minimumReleaseAge` error that names other plugins | pnpm 11 refuses packages published less than 24 hours ago by default and checks every package in the profile's lockfile, not only the new one. Retry later; the plugin is not the cause |
@@ -156,7 +165,8 @@ Report vulnerabilities privately, see [SECURITY.md](SECURITY.md).
 
 DSH is a **developer preview**; its plugin interfaces can change between releases, and this
 plugin depends on the web client's slots (`conversation.session.header.utilities`,
-`settings.section`) and on `ctx.connection.fetch` and `ctx.credentials` of the Host.
+`sidebar.footer.action`, `settings.section`) and on `ctx.connection.fetch` and `ctx.credentials`
+of the Host.
 
 | DSH version | Status |
 |---|---|

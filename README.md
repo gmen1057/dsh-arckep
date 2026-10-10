@@ -48,21 +48,22 @@ the second badge makes no extra requests.
 
 ## Install
 
-The package is **not on npm yet**; install it from GitHub:
-
 ```sh
-dsh plugin --profile web add github:gmen1057/dsh-arckep
+dsh plugin --profile web add dsh-arckep
 dsh web
 ```
 
 (`web` is the profile name; use your own profile if you have one.) There is no build step and
-no install script, so nothing else needs to be allowed or built. To pin an exact version append a
-commit or tag: `github:gmen1057/dsh-arckep#<commit-or-tag>`.
+no install script, so nothing else needs to be allowed or built. The package is on npm from
+version 0.1.2. pnpm 11, which DSH uses to install plugins, skips packages published less than 24
+hours ago, so a brand-new release may need a day before it can be installed from npm (see
+Troubleshooting).
 
-Once it is published to npm the command will be:
+To install straight from GitHub instead, or to pin an exact commit or tag:
 
 ```sh
-dsh plugin --profile web add dsh-arckep
+dsh plugin --profile web add github:gmen1057/dsh-arckep
+dsh plugin --profile web add github:gmen1057/dsh-arckep#<commit-or-tag>
 ```
 
 Check that the layer is active with `dsh --profile web --dump-config` (look for the
@@ -71,7 +72,7 @@ Check that the layer is active with `dsh --profile web --dump-config` (look for 
 ### Desktop app
 
 DSH Desktop owns its own profile, `desktop`. As the DSH docs describe: launch the app once,
-**quit it completely**, run `dsh plugin --profile desktop add github:gmen1057/dsh-arckep` (with the
+**quit it completely**, run `dsh plugin --profile desktop add dsh-arckep` (with the
 `dsh` command that ships with the app), then reopen the app. For the `desktop` profile
 `dsh --profile desktop --dump-config` is refused ("managed exclusively by the Electron
 application"), so the only check is the badge at the foot of the sidebar (or in the header of an open session). The author has not
@@ -159,7 +160,7 @@ Report vulnerabilities privately, see [SECURITY.md](SECURITY.md).
 | no badge at all | look at the foot of the sidebar, above Settings (the header badge needs an open session). If there is an Arckep page in Settings, check that "Show the balance in the sidebar" is on; if there is no such page, the plugin is not loaded: look for the `# == dsh-arckep` block in `dsh --profile web --dump-config` |
 | "The key comes from an environment variable" | unset `ARCKEP_API_KEY` to manage the key in Settings |
 | install fails and DSH prints "git-hosted plugins build on install via their prepare script…" | that hint is printed for **any** failed install from a `github:` address. dsh-arckep has no install or prepare script, so `allowBuilds` is not needed; read the real pnpm error printed above the hint |
-| install fails with a `minimumReleaseAge` error that names other plugins | pnpm 11 refuses packages published less than 24 hours ago by default and checks every package in the profile's lockfile, not only the new one. Retry later; the plugin is not the cause |
+| install fails with a `minimumReleaseAge` error | pnpm 11 refuses packages published less than 24 hours ago by default and checks every package in the profile's lockfile, not only the new one. If the message names other plugins, they are the cause; if it names dsh-arckep itself, the release is less than a day old. Retry later, or install the same version from GitHub (`github:gmen1057/dsh-arckep#v0.1.2`) |
 
 ## Compatibility
 

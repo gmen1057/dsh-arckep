@@ -4,6 +4,19 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.2] - 2026-10-10
+
+### Added
+
+- The package is published on npm: `dsh plugin --profile web add dsh-arckep`.
+
+### Changed
+
+- Documentation: npm is now the main install command (the desktop steps use it too), GitHub
+  stays as the alternative for pinning a commit or tag. The `minimumReleaseAge` row in
+  Troubleshooting also covers the first 24 hours of a new release.
+- No code changes: the plugin itself is identical to 0.1.1.
+
 ## [0.1.1] - 2026-10-10
 
 ### Added

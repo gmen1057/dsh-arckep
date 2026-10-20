@@ -147,10 +147,24 @@ test('redirects are never followed: any 3xx is an error and only one request is 
   await rejects(opaque.getBalance(KEY), 'redirect')
 })
 
-test('network failures become a bare code, and an error message that contains the key is dropped', async () => {
+test('network failures are retried once before becoming a bare code, and an error message that contains the key is dropped', async () => {
+  let attempts = 0
+  const flaky = createApiClient({
+    retryDelayMs: 10,
+    fetchImpl: async () => {
+      attempts += 1
+      if (attempts === 1) throw new TypeError('fetch failed')
+      return json(200, BALANCE_BODY)
+    },
+  })
+  assert.deepEqual(await flaky.getBalance(KEY), { rub: '150.00', corporate: false, corporateName: null })
+  assert.equal(attempts, 2, 'recovered on the single retry')
+
+  let deadAttempts = 0
   const leaky = Object.assign(new TypeError(`fetch failed for Bearer ${KEY}`), { cause: { message: KEY, code: 'ECONNRESET' } })
-  const api = createApiClient({ fetchImpl: async () => { throw leaky } })
+  const api = createApiClient({ fetchImpl: async () => { deadAttempts += 1; throw leaky } })
   const error = await rejects(api.getBalance(KEY), 'network')
+  assert.equal(deadAttempts, 2, 'tried twice and gave up')
   assert.ok(!everything(error).includes(KEY), 'the key must not survive in the error object')
   assert.equal(error.cause, undefined)
 })

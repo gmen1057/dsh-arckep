@@ -9,7 +9,7 @@ const libFiles = readdirSync(new URL('../lib/', import.meta.url)).filter(name =>
 
 test('package metadata', () => {
   assert.equal(pkg.name, 'dsh-arckep')
-  assert.equal(pkg.version, '0.1.3')
+  assert.equal(pkg.version, '0.1.4')
   assert.equal(pkg.license, 'MIT')
   assert.equal(pkg.type, 'module')
   assert.equal(pkg.main, 'lib/index.js')
@@ -64,8 +64,15 @@ test('lib/ imports nothing from Node except node:crypto: no files, sockets or su
   }
 })
 
-test('lib/ only ever mentions https://arckep.ru and loopback addresses', () => {
-  const allowed = [/^https:\/\/arckep\.ru$/, /^http:\/\/127\.0\.0\.1(?::\d+)?$/, /^http:\/\/localhost(?::\d+)?$/, /^http:\/\/\[::1\](?::\d+)?$/]
+test('lib/ only ever mentions allowed arckep.ru origins and loopback addresses', () => {
+  const allowed = [
+    /^https:\/\/arckep\.ru$/,
+    /^https:\/\/media\.arckep\.ru$/,
+    /^https:\/\/api\.arckep\.ru$/,
+    /^http:\/\/127\.0\.0\.1(?::\d+)?$/,
+    /^http:\/\/localhost(?::\d+)?$/,
+    /^http:\/\/\[::1\](?::\d+)?$/,
+  ]
   let seen = 0
   for (const file of libFiles) {
     for (const [url] of read(`lib/${file}`).matchAll(/https?:\/\/[^\s'"`)<>]+/g)) {
@@ -123,6 +130,7 @@ test('documentation: unofficial notice, install command, no marketing claims, no
     assert.doesNotMatch(doc, /\/opt\/|\/root\/|\/var\/tmp\/|\/home\/[a-z]/i)
   }
   assert.match(read('SECURITY.md'), /Security Advisories/)
+  assert.match(read('CHANGELOG.md'), /## \[0\.1\.4\]/)
   assert.match(read('CHANGELOG.md'), /## \[0\.1\.3\]/)
   assert.match(read('CHANGELOG.md'), /## \[0\.1\.2\]/)
   assert.match(read('CHANGELOG.md'), /## \[0\.1\.1\]/)

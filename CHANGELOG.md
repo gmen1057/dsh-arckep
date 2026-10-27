@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.4] - 2026-10-27
+
+### Changed
+
+- Automatic failover to the direct endpoint (`https://media.arckep.ru`, and `https://api.arckep.ru` when configured) when the primary front (`https://arckep.ru`) fails with a connection error or timeout, keeping the fallback active for 5 minutes so follow-up requests do not wait on an unreachable front.
+
 ## [0.1.3] - 2026-10-20
 
 ### Changed

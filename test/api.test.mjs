@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import {
-  ArckepError, ORIGIN, TEST_ORIGIN_ENV, cleanText, createApiClient, isAllowedOrigin, isValidKey,
-  parseBalance, parseUsage, resolveOrigin,
+  ArckepError, FALLBACK_ORIGIN, FALLBACK_STICKY_MS, ORIGIN, TEST_ORIGIN_ENV, cleanText,
+  createApiClient, isAllowedOrigin, isValidKey, parseBalance, parseUsage, resolveOrigin,
 } from '../lib/api.js'
 import { BALANCE_BODY, KEY, USAGE_BODY, everything, fakeFetch, json } from './helpers.mjs'
 
@@ -26,8 +26,8 @@ test('the production origin is https://arckep.ru and nothing else is allowed by 
   assert.equal(resolveOrigin({ [TEST_ORIGIN_ENV]: '' }).origin, ORIGIN)
 })
 
-test('isAllowedOrigin accepts arckep.ru and unprivileged loopback http only', () => {
-  for (const ok of [ORIGIN, 'http://127.0.0.1:39100', 'http://localhost:40000', 'http://[::1]:5000']) {
+test('isAllowedOrigin accepts arckep.ru, direct fallback origins and unprivileged loopback http only', () => {
+  for (const ok of [ORIGIN, FALLBACK_ORIGIN, 'https://api.arckep.ru', 'http://127.0.0.1:39100', 'http://localhost:40000', 'http://[::1]:5000']) {
     assert.equal(isAllowedOrigin(ok), true, ok)
   }
   for (const bad of [
@@ -167,6 +167,44 @@ test('network failures are retried once before becoming a bare code, and an erro
   assert.equal(deadAttempts, 2, 'tried twice and gave up')
   assert.ok(!everything(error).includes(KEY), 'the key must not survive in the error object')
   assert.equal(error.cause, undefined)
+})
+
+test('fails over to FALLBACK_ORIGIN when primary fails with network or timeout, and stays sticky for 5 minutes', async () => {
+  let clock = 1_000_000
+  const seenUrls = []
+  let primaryUp = false
+  const api = createApiClient({
+    now: () => clock,
+    retryDelayMs: 5,
+    fetchImpl: async (url) => {
+      seenUrls.push(url)
+      if (url.startsWith(ORIGIN) && !primaryUp) {
+        throw new TypeError('fetch failed')
+      }
+      if (url.includes('/balance')) return json(200, BALANCE_BODY)
+      return json(200, USAGE_BODY)
+    },
+  })
+
+  const balance = await api.getBalance(KEY)
+  assert.deepEqual(balance, { rub: '150.00', corporate: false, corporateName: null })
+  assert.deepEqual(seenUrls, [
+    'https://arckep.ru/api/v1/balance',
+    'https://media.arckep.ru/api/v1/balance',
+  ])
+
+  // Follow-up usage request goes straight to FALLBACK_ORIGIN without waiting on the dead primary.
+  seenUrls.length = 0
+  const usage = await api.getUsage(KEY, { keyOnly: false })
+  assert.equal(usage.periodDays, 30)
+  assert.deepEqual(seenUrls, ['https://media.arckep.ru/api/v1/usage?days=30&key_only=false'])
+
+  // Once the sticky window passes and primary is back, it uses primary again.
+  clock += FALLBACK_STICKY_MS + 1
+  primaryUp = true
+  seenUrls.length = 0
+  await api.getBalance(KEY)
+  assert.deepEqual(seenUrls, ['https://arckep.ru/api/v1/balance'])
 })
 
 test('a request that never answers times out after the configured time', async () => {

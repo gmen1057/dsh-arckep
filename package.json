@@ -1,6 +1,6 @@
 {
   "name": "dsh-arckep",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Balance and spending of an arckep.ru account inside the DeepSeek Harness (DSH) web UI. Unofficial community plugin.",
   "keywords": [
     "dsh",

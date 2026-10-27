@@ -9,7 +9,7 @@ const libFiles = readdirSync(new URL('../lib/', import.meta.url)).filter(name =>
 
 test('package metadata', () => {
   assert.equal(pkg.name, 'dsh-arckep')
-  assert.equal(pkg.version, '0.1.4')
+  assert.equal(pkg.version, '0.1.5')
   assert.equal(pkg.license, 'MIT')
   assert.equal(pkg.type, 'module')
   assert.equal(pkg.main, 'lib/index.js')
@@ -130,6 +130,7 @@ test('documentation: unofficial notice, install command, no marketing claims, no
     assert.doesNotMatch(doc, /\/opt\/|\/root\/|\/var\/tmp\/|\/home\/[a-z]/i)
   }
   assert.match(read('SECURITY.md'), /Security Advisories/)
+  assert.match(read('CHANGELOG.md'), /## \[0\.1\.5\]/)
   assert.match(read('CHANGELOG.md'), /## \[0\.1\.4\]/)
   assert.match(read('CHANGELOG.md'), /## \[0\.1\.3\]/)
   assert.match(read('CHANGELOG.md'), /## \[0\.1\.2\]/)

@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.5] - 2026-10-27
+
+### Changed
+
+- Extended direct-origin failover (`https://media.arckep.ru`) to also trigger on gateway HTTP 502/503/504 responses, switch immediately without the 1.5 s same-host retry pause, keep the fallback sticky for 15 minutes (three default 300 s polling cycles), and reset stickiness if the fallback itself fails.
+
 ## [0.1.4] - 2026-10-27
 
 ### Changed

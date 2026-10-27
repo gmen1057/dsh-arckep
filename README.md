@@ -125,9 +125,9 @@ Anything the user changes in Settings → Arckep overrides these defaults in tha
 
 ## Privacy and security
 
-- The plugin talks to **`https://arckep.ru` only**: `GET /api/v1/balance` and
-  `GET /api/v1/usage?days=30&key_only=...`. The host and the https scheme are checked in code; a
-  redirect (any 3xx answer) is treated as an error and never followed.
+- The plugin talks to **`https://arckep.ru` and its direct fallback `https://media.arckep.ru` only**:
+  `GET /api/v1/balance` and `GET /api/v1/usage?days=30&key_only=...`. The host and the https scheme
+  are checked in code; a redirect (any 3xx answer) is treated as an error and never followed.
 - **No telemetry, no analytics, no third-party requests.** The plugin writes no files of its own;
   the only thing persisted by DSH is the key, in its credential store. The display settings
   live in your browser's `localStorage`.

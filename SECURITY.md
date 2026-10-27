@@ -21,7 +21,7 @@ I can, but I cannot promise a fixed response time.
   store;
 - anything that lets a web page or another local user reach the plugin's routes
   without DSH's own authentication;
-- requests to hosts other than `https://arckep.ru`, or following of redirects;
+- requests to hosts other than `https://arckep.ru` and its direct fallback `https://media.arckep.ru`, or following of redirects;
 - crashes or hangs of DSH caused by the plugin.
 
 ## What is out of scope

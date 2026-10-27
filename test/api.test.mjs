@@ -169,17 +169,28 @@ test('network failures are retried once before becoming a bare code, and an erro
   assert.equal(error.cause, undefined)
 })
 
-test('fails over to FALLBACK_ORIGIN when primary fails with network or timeout, and stays sticky for 5 minutes', async () => {
+test('fails over to FALLBACK_ORIGIN when primary fails with network, timeout or gateway 502/503/504, and stays sticky across 300s polls', async () => {
+  assert.equal(FALLBACK_STICKY_MS, 15 * 60_000)
   let clock = 1_000_000
   const seenUrls = []
-  let primaryUp = false
+  let primaryMode = 'network'
+  let fallbackUp = true
   const api = createApiClient({
     now: () => clock,
     retryDelayMs: 5,
     fetchImpl: async (url) => {
       seenUrls.push(url)
-      if (url.startsWith(ORIGIN) && !primaryUp) {
-        throw new TypeError('fetch failed')
+      if (url.startsWith(ORIGIN)) {
+        if (primaryMode === 'network') throw new TypeError('fetch failed')
+        if (primaryMode === 'timeout') {
+          const err = new Error('timed out')
+          err.name = 'TimeoutError'
+          throw err
+        }
+        if (primaryMode === '502') return json(502, { message: 'bad gateway' })
+      }
+      if (url.startsWith(FALLBACK_ORIGIN) && !fallbackUp) {
+        throw new TypeError('fallback down')
       }
       if (url.includes('/balance')) return json(200, BALANCE_BODY)
       return json(200, USAGE_BODY)
@@ -193,18 +204,43 @@ test('fails over to FALLBACK_ORIGIN when primary fails with network or timeout, 
     'https://media.arckep.ru/api/v1/balance',
   ])
 
-  // Follow-up usage request goes straight to FALLBACK_ORIGIN without waiting on the dead primary.
-  seenUrls.length = 0
-  const usage = await api.getUsage(KEY, { keyOnly: false })
-  assert.equal(usage.periodDays, 30)
-  assert.deepEqual(seenUrls, ['https://media.arckep.ru/api/v1/usage?days=30&key_only=false'])
+  // Follow-up usage request and subsequent 300s polls go straight to FALLBACK_ORIGIN.
+  for (const stepMs of [0, 300_000, 300_000]) {
+    clock += stepMs
+    seenUrls.length = 0
+    const usage = await api.getUsage(KEY, { keyOnly: false })
+    assert.equal(usage.periodDays, 30)
+    assert.deepEqual(seenUrls, ['https://media.arckep.ru/api/v1/usage?days=30&key_only=false'])
+  }
 
-  // Once the sticky window passes and primary is back, it uses primary again.
+  // Once the 15-minute sticky window passes and primary is back, it uses primary again.
   clock += FALLBACK_STICKY_MS + 1
-  primaryUp = true
+  primaryMode = 'ok'
   seenUrls.length = 0
   await api.getBalance(KEY)
   assert.deepEqual(seenUrls, ['https://arckep.ru/api/v1/balance'])
+
+  // Timeout and 502 on primary also fail over to FALLBACK_ORIGIN.
+  for (const mode of ['timeout', '502']) {
+    clock += FALLBACK_STICKY_MS + 1
+    primaryMode = mode
+    seenUrls.length = 0
+    await api.getBalance(KEY)
+    assert.deepEqual(seenUrls, [
+      'https://arckep.ru/api/v1/balance',
+      'https://media.arckep.ru/api/v1/balance',
+    ])
+  }
+
+  // If sticky fallback itself fails while primary has recovered, it falls back to primary and clears stickiness.
+  primaryMode = 'ok'
+  fallbackUp = false
+  seenUrls.length = 0
+  await api.getBalance(KEY)
+  assert.deepEqual(seenUrls, [
+    'https://media.arckep.ru/api/v1/balance',
+    'https://arckep.ru/api/v1/balance',
+  ])
 })
 
 test('a request that never answers times out after the configured time', async () => {
